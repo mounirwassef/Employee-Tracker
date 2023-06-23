@@ -64,6 +64,9 @@ function WhatDo() {
                 case 'Update employee managers':
                     updateEmployeeMana();
                     break;
+                case 'View employees by manager':
+                    viewEmployeeByMana();
+                    break;
                 case 'View employees by department':
                     viewEmployeeByDepa();
                     break;
@@ -378,6 +381,45 @@ function updateEmployeeMana() {
             ) {
                 if (err) throw err;
                 console.log('manager updated !');
+                inquirer
+                    .prompt([
+                        {
+                            type: 'list',
+                            name: 'newChoice',
+                            message: 'Select a new option:',
+                            choices: ['Main Menu', 'Quit']
+                        }
+                    ])
+                    .then((answer) => {
+                        switch (answer.newChoice) {
+                            case 'Main Menu':
+                                WhatDo();
+                                break;
+                            case 'Quit':
+                                quit();
+                                break;
+                        }
+                    });
+            });
+        });
+}
+
+function viewEmployeeByMana() {
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                message: 'Enter the manager_id',
+                name: 'managerIDne'
+            }
+        ])
+        .then(function (response) {
+            const request = 'SELECT a.*, b.title, b.salary, b.department_id, c.name AS department_name FROM employee a, role b, department c WHERE a.role_id = b.id AND b.department_id = c.id AND a.manager_id= ?';
+            connection.query(request, [response.managerIDne], function (err, res) {
+                if (err) throw err;
+                console.log('employees:');
+                console.table(res);
+
                 inquirer
                     .prompt([
                         {
